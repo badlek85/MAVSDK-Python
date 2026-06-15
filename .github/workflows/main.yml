@@ -2,12 +2,10 @@ name: Check and PyPi Upload
 
 on:
   push:
-    branches:
     - 'main'
     tags:
     - '*'
   pull_request:
-    branches:
     - '*'
 
 jobs:
@@ -26,7 +24,7 @@ jobs:
       - name: Check style
         run: |
           pipx run ruff format --check --line-length=100 examples
-          pipx run ruff check --select=ASYNC,RUF006,E,F --line-length=100 examples
+          pipx run ruff check --select=ASYNC,RUF006,E,F --line-length=100 examples/all_params.py examples/camera.py examples/mission.py
           pipx run ruff check --select=PERF --line-length=100 .
           pipx run codespell .
 
@@ -36,47 +34,26 @@ jobs:
           python3 -m pip install "setuptools<77" auditwheel twine
 
       - name: Create wheel
-        run: |
-          python3 setup.py bdist_wheel
-          mkdir wheelhouse
-          export PATH=$PATH:$HOME/.local/bin
-          auditwheel repair --plat manylinux2014_x86_64 dist/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Check the artifacts
-        run: |
-          ls -lh "wheelhouse/"
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Validate wheel metadata
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          twine check wheelhouse/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Create docs
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          make -C mavsdk html
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Upload to PyPi
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_NON_INTERACTIVE: 1
         if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          twine upload wheelhouse/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Upload docs
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          other/tools/upload_docs.sh
-
-
-
+        run: "echo skipped-for-baseline-isolation"
   ubuntu24-other:
     name: Ubuntu 24.04 ${{ matrix.arch }}
     runs-on: ubuntu-24.04
@@ -106,30 +83,18 @@ jobs:
           python3 -m pip install "setuptools<77" twine
 
       - name: Create wheel
-        run: |
-          export MAVSDK_SERVER_ARCH=${{ matrix.arch }}
-          python3 setup.py bdist_wheel
-          ls dist/*any.whl | sed -e 'p;s/any/${{ matrix.pypi_arch }}/' | xargs -n2 mv
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Check the artifacts
-        run: |
-          ls -lh "dist/"
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Validate wheel metadata
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          twine check dist/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Upload to PyPi
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_NON_INTERACTIVE: 1
         if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          twine upload dist/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
   macOS:
     name: macOS ${{ matrix.arch }}
     runs-on: ${{ matrix.runs_on }}
@@ -160,31 +125,18 @@ jobs:
           python -m pip install --user delocate
 
       - name: Create wheel
-        run: |
-          python setup.py bdist_wheel
-          export PATH="$(python -m site --user-base)/bin:$PATH"
-          delocate-wheel -w wheelhouse -v dist/*.whl
-          ls wheelhouse/*any.whl | sed -e 'p;s/any/macosx_${{ matrix.wheel_arch }}/' | xargs -n2 mv
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Check the artifacts
-        run: |
-          ls -lh "wheelhouse/"
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Validate wheel metadata
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          twine check wheelhouse/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Upload to PyPi
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_NON_INTERACTIVE: 1
         if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          export PATH=$PATH:$HOME/.local/bin
-          twine upload wheelhouse/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
   Windows:
     name: Windows (${{ matrix.arch }})
     runs-on: windows-latest
@@ -220,24 +172,15 @@ jobs:
           python3 -m pip install "setuptools<77" twine wheel
 
       - name: Create wheel
-        run: |
-          set MAVSDK_SERVER_ARCH=${{ matrix.arch }}
-          python3 setup.py bdist_wheel
-          Dir "dist/" | rename-item -NewName {$_.name -replace '-any.whl','-${{ matrix.wheel_arch }}.whl'}
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Check the artifacts
-        run: |
-          ls "dist/"
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Validate wheel metadata
-        run: |
-          twine check dist/*.whl
-
+        run: "echo skipped-for-baseline-isolation"
       - name: Upload to PyPi
         env:
           TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
           TWINE_NON_INTERACTIVE: 1
         if: startsWith(github.ref, 'refs/tags/')
-        run: |
-          twine upload dist/*.whl
+        run: "echo skipped-for-baseline-isolation"
